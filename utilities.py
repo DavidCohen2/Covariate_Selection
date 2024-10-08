@@ -29,5 +29,33 @@ def plot_propensity_score_distribution(propensity_scores_with, propensity_scores
     plt.tight_layout()
     plt.show()
 
+def plot_ate_error_vs_x_i_outcome_effect_weight(x_i_outcome_effect_weights, mean_ate_error_with_xi_list, mean_ate_error_without_xi_list):
+    # Plotting the results with additional annotations and compact figure
+    plt.figure(figsize=(7, 4))  # Reduced figure size for compactness
+    plt.plot(x_i_outcome_effect_weights, mean_ate_error_with_xi_list, marker='o', label='Including X_i in Analysis')
+    plt.plot(x_i_outcome_effect_weights, mean_ate_error_without_xi_list, marker='o',
+             label='Excluding X_i from Analysis')
+
+    # Add vertical line at 0.2
+    plt.axvline(x=0.2, color='red', linestyle='--')
+
+    # Add annotations with adjusted position and font size
+    plt.text(0.1, max(mean_ate_error_with_xi_list) * 1.4, 'Overlap violation', ha='center', color='red', fontsize=15)
+    plt.text(0.35, max(mean_ate_error_with_xi_list) * 1.4, 'Ignorability violation', ha='center', color='red',
+             fontsize=15)
+
+    # Updated labels and title to reflect the project context
+    plt.xlabel('X_i Outcome Effect Weight', fontsize=15)
+    plt.ylabel('Absolute ATE Error', fontsize=15)
+    # plt.title('Tradeoff Between Overlap and Ignorability Based on X_i Outcome Effect Weight', pad=0)  # Remove extra space before the title
+    plt.legend(fontsize=14, title_fontsize=10)  # Smaller legend for compactness
+    plt.grid(True)
+
+    # Adjust layout to remove unnecessary white space
+    plt.tight_layout()
+
+    # Show the plot
+    plt.show()
+
 
     

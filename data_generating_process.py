@@ -76,7 +76,7 @@ def create_data_generate_process(mode='mode_1', X=None, T=None, weights=None, x_
     if mode == 'mode_folds_step2':
         treatment_effect = 3
         # Simulate outcomes
-        Y0 = np.dot(X[:, 1:], weights) + x_i_outcome_effect_weight * X[:, 0] ** 2
+        Y0 = np.dot(X[:, 1:], weights) + x_i_outcome_effect_weight * X[:, 0] ** 2 + np.sin(X[:, 1] ** 2)*X[:, 2]**2 + np.sin(X[:, 1] * X[:, 2])
         Y1 = Y0 + treatment_effect
 
         Y = T * Y1 + (1 - T) * Y0

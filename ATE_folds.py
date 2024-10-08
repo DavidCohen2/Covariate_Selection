@@ -9,11 +9,11 @@ from utilities import plot_ate_error_vs_x_i_outcome_effect_weight
 # Set the seed for reproducibility
 np.random.seed(42)
 
-n_iterations = 10
+n_iterations = 100
 n_samples = 1000
 
 # Define a range of x_i_outcome_effect_weight values
-x_i_outcome_effect_weights = [0, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 1, 5]
+x_i_outcome_effect_weights = [0, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 1, 3, 5, 7, 10]
 
 # Lists to store results for the new figure
 mean_ate_error_with_xi_list = []

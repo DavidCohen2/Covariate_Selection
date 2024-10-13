@@ -9,7 +9,7 @@ from utilities import plot_ate_error_vs_x_i_outcome_effect_weight, plot_ates_and
 # Set the seed for reproducibility
 np.random.seed(42)
 
-n_iterations = 100
+n_iterations = 10
 n_samples = 1000
 
 # Define a range of x_i_outcome_effect_weight values
@@ -24,6 +24,8 @@ std_ate_error_with_xi_list = []
 std_ate_error_without_xi_list = []
 mean_ate_with_xi_list = []
 mean_ate_without_xi_list = []
+std_ate_with_xi_list = []
+std_ate_without_xi_list = []
 cohen_d_list = []
 
 X, T, prob, weights = create_data_generate_process(mode='mode_folds_step1')
@@ -73,9 +75,13 @@ for x_i_outcome_effect_weight in x_i_outcome_effect_weights:
     std_ate_error_without_xi = np.std(ate_errors_without_xi)
 
     mean_ate_with_xi = np.mean(ate_with_xi_list)
+    std_ate_with_xi = np.std(ate_with_xi_list)
     mean_ate_without_xi = np.mean(ate_without_xi_list)
+    std_ate_without_xi = np.std(ate_without_xi_list)
     mean_ate_with_xi_list.append(mean_ate_with_xi)
     mean_ate_without_xi_list.append(mean_ate_without_xi)
+    std_ate_with_xi_list.append(std_ate_with_xi)
+    std_ate_without_xi_list.append(std_ate_without_xi)
 
     cohen_d = abs(mean_ate_with_xi - mean_ate_without_xi) / np.sqrt((np.std(ate_with_xi_list)**2 + np.std(ate_without_xi_list)**2) / 2)
     cohen_d_list.append(cohen_d)
@@ -90,6 +96,6 @@ for x_i_outcome_effect_weight in x_i_outcome_effect_weights:
     print(f"mean error without x_i: mean {mean_ate_error_without_xi} std {std_ate_error_without_xi}")
     print(f"cohen d {cohen_d}")
 
-plot_ate_error_vs_x_i_outcome_effect_weight(x_i_outcome_effect_weights, mean_ate_error_with_xi_list, mean_ate_error_without_xi_list)
-plot_ates_and_cohen_d_vs_x_i_outcome_effect_weight(x_i_outcome_effect_weights, mean_ate_with_xi_list, mean_ate_without_xi_list, cohen_d_list)
+plot_ate_error_vs_x_i_outcome_effect_weight(x_i_outcome_effect_weights, mean_ate_error_with_xi_list, mean_ate_error_without_xi_list, std_ate_error_with_xi_list, std_ate_error_without_xi_list)
+plot_ates_and_cohen_d_vs_x_i_outcome_effect_weight(x_i_outcome_effect_weights, mean_ate_with_xi_list, mean_ate_without_xi_list, cohen_d_list, std_ate_with_xi_list, std_ate_without_xi_list)
 

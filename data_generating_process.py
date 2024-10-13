@@ -1,5 +1,6 @@
 import numpy as np
 from sklearn.preprocessing import PolynomialFeatures
+import matplotlib.pyplot as plt
 
 
 # Helper functions
@@ -77,6 +78,47 @@ def create_data_generate_process(mode='mode_1', X=None, T=None, weights=None, x_
         treatment_effect = 3
         # Simulate outcomes
         Y0 = np.dot(X[:, 1:], weights) + np.sin(X[:, 1] ** 2)*X[:, 2]**2 + np.sin(X[:, 1] * X[:, 2]) + x_i_outcome_effect_weight * X[:, 0]
+        Y1 = Y0 + treatment_effect
+
+        Y = T * Y1 + (1 - T) * Y0
+
+        return Y, Y1, Y0
+
+    if mode == 'mode_folds_simple_step1':
+        # Parameters
+        n_samples = 1000  # Number of samples
+        d_cov = 2  # Total number of covariates including x_i
+
+        x_i_selection_weight = 10
+        x_i_outcome_effect_weight = 0.3
+
+        # Simulate data
+        X = np.random.normal(0, 1, (n_samples, d_cov))
+        z = np.random.normal(0, 1, d_cov - 1)
+        weights = z / np.sqrt(d_cov - 1)
+
+        # Calculate propensity scores
+        l = np.dot(X[:, 1:], weights) + x_i_selection_weight * X[:, 0]
+        prob = 1 / (1 + np.exp(-l))
+        T = np.random.binomial(1, prob)
+
+        # Plot treatment vs control
+        plt.figure(figsize=(8, 6))
+        plt.scatter(X[T == 1][:, 0], X[T == 1][:, 1], color='blue', label='Treatment', alpha=0.6)
+        plt.scatter(X[T == 0][:, 0], X[T == 0][:, 1], color='red', label='Control', alpha=0.6)
+        plt.title('Overlap Violation: Treatment vs Control')
+        plt.xlabel(r'$x_{co}$', fontsize=15)
+        plt.ylabel(r'$x_1$', fontsize=15)
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+        return X, T, prob, weights
+
+    if mode == 'mode_folds_simple_step2':
+        treatment_effect = 3
+        # Simulate outcomes
+        Y0 = np.dot(X[:, 1:], weights) + x_i_outcome_effect_weight * X[:, 0]
         Y1 = Y0 + treatment_effect
 
         Y = T * Y1 + (1 - T) * Y0

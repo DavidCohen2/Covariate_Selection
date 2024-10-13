@@ -1,5 +1,5 @@
 import numpy as np
-
+from sklearn.preprocessing import PolynomialFeatures
 
 
 # Helper functions
@@ -32,7 +32,7 @@ def create_data_generate_process(mode='mode_1', X=None, T=None, weights=None, x_
         d_cov = 10  # Total number of covariates including x_i
         treatment_effect = 3
 
-        x_i_selection_weight = 10
+        x_i_selection_weight = 1
         x_i_outcome_effect_weight = 0.3
         
         # Simulate data
@@ -82,5 +82,78 @@ def create_data_generate_process(mode='mode_1', X=None, T=None, weights=None, x_
         Y = T * Y1 + (1 - T) * Y0
 
         return Y, Y1, Y0
+    
+    if mode=='mode_2d':
+        # Parameters
+        n_samples = 150  # Number of samples 
+        d_cov = 5  # Total number of covariates including x_i
+        treatment_effect = 3
 
+        overlap_violation_factor = 20
+        x_i_selection_weight = 3
+        x_i_outcome_effect_weight = 0.1
+        
+        # Simulate data
+        X = np.random.normal(0, 1, (n_samples, d_cov))
+        z = np.random.normal(0, 1, d_cov - 1)
+        weights = z / np.sqrt(d_cov - 1)
+        
+        # Calculate propensity scores
+        l = overlap_violation_factor*np.dot(X[:, 1:], weights) + x_i_selection_weight * X[:, 0]
+        prob = 1 / (1 + np.exp(-l))
+        T = np.random.binomial(1, prob)
+        
+        # Simulate outcomes
+        Y0 = np.dot(X[:, 1:], weights) + x_i_outcome_effect_weight * X[:, 0]
+        Y1 = Y0 + treatment_effect
+
+        Y = T * Y1 + (1 - T) * Y0
+
+    if mode == 'mode_poly_all':
+        # Parameters
+        n_samples = 70  # Number of samples
+        d_cov = 3  # Total number of covariates including x_i
+        treatment_effect = 3
+
+        x_i_selection_weight = 50
+        x_i_outcome_effect_weight = 0.2
+
+        # Simulate data
+        X = np.random.normal(0, 1, (n_samples, d_cov))
+        
+        # Generate polynomial features
+        poly = PolynomialFeatures(degree=2, include_bias=False)
+        X_poly = poly.fit_transform(X)
+        
+        # Separate terms involving X[:,0]
+        terms_involving_x0 = [i for i, term in enumerate(poly.powers_) if term[0] > 0]
+        terms_not_involving_x0 = [i for i, term in enumerate(poly.powers_) if term[0] == 0]
+        
+        # Normalize weights
+        z = np.random.normal(0, 1,len(terms_involving_x0))
+        weights_involving_x0 = z / np.sqrt(len(terms_involving_x0))
+
+        z = np.random.normal(0, 1,len(terms_not_involving_x0))
+        weights_not_involving_x0 = z / np.sqrt(len(terms_not_involving_x0))
+ 
+        # Calculate propensity scores
+        l = np.dot(X_poly[:, terms_not_involving_x0], weights_not_involving_x0) + x_i_selection_weight * np.dot(X_poly[:, terms_involving_x0], weights_involving_x0)
+        prob = 1 / (1 + np.exp(-l))
+        T = np.random.binomial(1, prob)
+
+        # Normalize weights
+        z = np.random.normal(0, 1,len(terms_involving_x0))
+        weights_involving_x0 = z / np.sqrt(len(terms_involving_x0))
+
+        z = np.random.normal(0, 1,len(terms_not_involving_x0))
+        weights_not_involving_x0 = z / np.sqrt(len(terms_not_involving_x0))
+        
+        # Simulate outcomes
+        Y0 = np.dot(X_poly[:, terms_not_involving_x0], weights_not_involving_x0) + x_i_outcome_effect_weight * np.dot(X_poly[:, terms_involving_x0], weights_involving_x0)
+        Y1 = Y0 + treatment_effect
+
+        Y = T * Y1 + (1 - T) * Y0
+
+        return X, T, Y, Y1, Y0, prob
+    
 

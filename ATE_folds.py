@@ -13,13 +13,14 @@ n_iterations = 10
 n_samples = 1000
 
 # Define a range of x_i_outcome_effect_weight values
-x_i_outcome_effect_weights = [0, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 1, 5]
+x_i_outcome_effect_weights = [0, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 1, 3, 5, 7, 10]
 
 # Lists to store results for the new figure
 mean_ate_error_with_xi_list = []
 mean_ate_error_without_xi_list = []
 std_ate_error_with_xi_list = []
 std_ate_error_without_xi_list = []
+cohen_d_list = []
 
 X, T, prob, weights = create_data_generate_process(mode='mode_folds_step1')
 scaler = StandardScaler()
@@ -66,11 +67,19 @@ for x_i_outcome_effect_weight in x_i_outcome_effect_weights:
     ate_errors_without_xi = [abs(ate - gt) for ate, gt in zip(ate_without_xi_list, ground_truth_ate_list)]
     mean_ate_error_without_xi = np.mean(ate_errors_without_xi)
     std_ate_error_without_xi = np.std(ate_errors_without_xi)
+
+    cohen_d = abs(np.mean(ate_with_xi_list) - np.mean(ate_without_xi_list)) / np.sqrt((np.std(ate_with_xi_list)**2 + np.std(ate_without_xi_list)**2) / 2)
+    cohen_d_list.append(cohen_d)
     
     mean_ate_error_with_xi_list.append(mean_ate_error_with_xi)
     std_ate_error_with_xi_list.append(std_ate_error_with_xi)
     mean_ate_error_without_xi_list.append(mean_ate_error_without_xi)
     std_ate_error_without_xi_list.append(std_ate_error_without_xi)
+
+    print(f"x_i_outcome_effect_weight={x_i_outcome_effect_weight}:")
+    print(f"mean error with x_i: mean {mean_ate_error_with_xi} std {std_ate_error_with_xi}")
+    print(f"mean error without x_i: mean {mean_ate_error_without_xi} std {std_ate_error_without_xi}")
+    print(f"cohen d {cohen_d}")
 
 plot_ate_error_vs_x_i_outcome_effect_weight(x_i_outcome_effect_weights, mean_ate_error_with_xi_list, mean_ate_error_without_xi_list)
 

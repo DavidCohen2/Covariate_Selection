@@ -3,23 +3,27 @@ from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.preprocessing import StandardScaler
 from data_generating_process import create_data_generate_process
 from ate_estimate import calculate_ate
-from utilities import plot_ate_error_vs_x_i_outcome_effect_weight
+from utilities import plot_ate_error_vs_x_i_outcome_effect_weight, plot_ates_and_cohen_d_vs_x_i_outcome_effect_weight
 
 
 # Set the seed for reproducibility
 np.random.seed(42)
 
-n_iterations = 10
+n_iterations = 100
 n_samples = 1000
 
 # Define a range of x_i_outcome_effect_weight values
-x_i_outcome_effect_weights = [0, 0.01, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 1, 3, 5, 7, 10]
+#x_i_outcome_effect_weights = [0, 0.05, 0.2, 0.5, 1, 3, 5, 7, 10]
+x_i_outcome_effect_weights = [0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 1]
+#x_i_outcome_effect_weights = [10, 50, 100, 500, 1000]
 
 # Lists to store results for the new figure
 mean_ate_error_with_xi_list = []
 mean_ate_error_without_xi_list = []
 std_ate_error_with_xi_list = []
 std_ate_error_without_xi_list = []
+mean_ate_with_xi_list = []
+mean_ate_without_xi_list = []
 cohen_d_list = []
 
 X, T, prob, weights = create_data_generate_process(mode='mode_folds_step1')
@@ -52,7 +56,7 @@ for x_i_outcome_effect_weight in x_i_outcome_effect_weights:
         # ATE estimation
         method = 'T-Learner'  # or 'IPW'
         ate_with_xi, ate_without_xi = calculate_ate(
-            method, T_fold, Y_fold, X_scaled_with_fold, X_scaled_without_fold, propensity_scores_with, propensity_scores_without
+            method, T_fold, Y_fold, X_scaled_with_fold, X_scaled_without_fold, propensity_scores_with, propensity_scores_without, estimator_name="GradientBoosting"
         )
         
         # Store results for this iteration
@@ -68,7 +72,12 @@ for x_i_outcome_effect_weight in x_i_outcome_effect_weights:
     mean_ate_error_without_xi = np.mean(ate_errors_without_xi)
     std_ate_error_without_xi = np.std(ate_errors_without_xi)
 
-    cohen_d = abs(np.mean(ate_with_xi_list) - np.mean(ate_without_xi_list)) / np.sqrt((np.std(ate_with_xi_list)**2 + np.std(ate_without_xi_list)**2) / 2)
+    mean_ate_with_xi = np.mean(ate_with_xi_list)
+    mean_ate_without_xi = np.mean(ate_without_xi_list)
+    mean_ate_with_xi_list.append(mean_ate_with_xi)
+    mean_ate_without_xi_list.append(mean_ate_without_xi)
+
+    cohen_d = abs(mean_ate_with_xi - mean_ate_without_xi) / np.sqrt((np.std(ate_with_xi_list)**2 + np.std(ate_without_xi_list)**2) / 2)
     cohen_d_list.append(cohen_d)
     
     mean_ate_error_with_xi_list.append(mean_ate_error_with_xi)
@@ -82,4 +91,5 @@ for x_i_outcome_effect_weight in x_i_outcome_effect_weights:
     print(f"cohen d {cohen_d}")
 
 plot_ate_error_vs_x_i_outcome_effect_weight(x_i_outcome_effect_weights, mean_ate_error_with_xi_list, mean_ate_error_without_xi_list)
+plot_ates_and_cohen_d_vs_x_i_outcome_effect_weight(x_i_outcome_effect_weights, mean_ate_with_xi_list, mean_ate_without_xi_list, cohen_d_list)
 

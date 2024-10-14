@@ -26,7 +26,7 @@ mean_ate_with_xi_list = []
 mean_ate_without_xi_list = []
 cohen_d_list = []
 
-X, T, prob, weights = create_data_generate_process(mode='mode_folds_step1')
+X, T, prob, weights = create_data_generate_process(mode='mode_folds_simple_step1')
 scaler = StandardScaler()
 X_scaled_with = scaler.fit_transform(X)
 X_scaled_without = scaler.fit_transform(X[:, 1:])
@@ -37,7 +37,7 @@ for x_i_outcome_effect_weight in x_i_outcome_effect_weights:
     ate_without_xi_list = []
     ground_truth_ate_list = []
 
-    Y, Y1, Y0 = create_data_generate_process(mode='mode_folds_step2', X=X, T=T, weights=weights, x_i_outcome_effect_weight=x_i_outcome_effect_weight)
+    Y, Y1, Y0 = create_data_generate_process(mode='mode_folds_simple_step2', X=X, T=T, weights=weights, x_i_outcome_effect_weight=x_i_outcome_effect_weight)
 
     for _ in range(n_iterations):
         most_idx = np.random.choice(n_samples, int(n_samples * 0.8), replace=False)
@@ -56,7 +56,7 @@ for x_i_outcome_effect_weight in x_i_outcome_effect_weights:
         # ATE estimation
         method = 'T-Learner'  # or 'IPW'
         ate_with_xi, ate_without_xi = calculate_ate(
-            method, T_fold, Y_fold, X_scaled_with_fold, X_scaled_without_fold, propensity_scores_with, propensity_scores_without, estimator_name="GradientBoosting"
+            method, T_fold, Y_fold, X_scaled_with_fold, X_scaled_without_fold, propensity_scores_with, propensity_scores_without, estimator_name="LinearRegression"
         )
         
         # Store results for this iteration

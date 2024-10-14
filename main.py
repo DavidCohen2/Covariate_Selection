@@ -25,8 +25,8 @@ for i_iter in range(n_iterations):
     
     #X, T, Y, Y1, Y0, prob = create_data_generate_process(mode ='toy_example')    
     X, T, Y, Y1, Y0, prob, Y1_without_noise, Y0_without_noise, X_grid, Y0_grid, Y1_grid = create_data_generate_process(mode='toy_example')
-    if i_iter == 0:
-        plot_data(X, T, Y0, Y1, Y0_without_noise, Y1_without_noise, X_grid, Y0_grid, Y1_grid)        
+    # if i_iter == 0:
+    #     plot_data(X, T, Y0, Y1, Y0_without_noise, Y1_without_noise, X_grid, Y0_grid, Y1_grid)
         
         
     scaler = StandardScaler()

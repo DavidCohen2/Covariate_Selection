@@ -221,11 +221,41 @@ def create_data_generate_process(mode='mode_1', X=None, T=None, weights=None, x_
         
         return X, T, Y, Y1, Y0, prob, Y1_without_noise, Y0_without_noise, X_grid, Y0_grid, Y1_grid
 
-        
+    if mode == 'toy_example_folds_step1':
+        # Parameters
+        n_samples = 200  # Number of samples
+        if n_samples_outside is not None:
+            n_samples = n_samples_outside
+        d_cov = 2  # Total number of covariates including x_i
 
-        
-        #return X, T, Y, Y1, Y0, prob,Y1_without_noise,Y0_without_noise
-    
+        x_i_selection_weight = 10
+
+        # Simulate data
+        X = np.random.normal(0, 1, (n_samples, d_cov))
+
+        l = X[:, 1] ** 2 + x_i_selection_weight * X[:, 0] ** 2 * X[:, 1] ** 2 + x_i_selection_weight * X[:, 0] ** 2 + x_i_selection_weight * X[:,0]**2 * X[:,1]
+        prob = 1 / (1 + np.exp(-l))
+        T = np.random.binomial(1, prob)
+
+        return X, T, prob
+
+    if mode == 'toy_example_folds_step2':
+        n_samples = 200  # Number of samples
+        if n_samples_outside is not None:
+            n_samples = n_samples_outside
+        treatment_effect = 5
+        # Simulate outcomes
+        # Y0 relu of X[:, 0] and linear function of X[:, 1]
+        Y0_without_noise = 2 + X[:, 1] + X[:, 1] ** 2 + x_i_outcome_effect_weight * X[:, 0] ** 2
+        Y1_without_noise = Y0_without_noise + treatment_effect
+        Y0 = Y0_without_noise + np.random.normal(0, 0.1, n_samples)
+        Y1 = Y1_without_noise + np.random.normal(0, 0.1, n_samples)
+
+        Y = T * Y1 + (1 - T) * Y0
+
+        return Y, Y1, Y0
+
+
     if mode == 'mode_poly_all':
         # Parameters
         n_samples = 200  # Number of samples

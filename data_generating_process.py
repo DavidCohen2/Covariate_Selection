@@ -25,7 +25,7 @@ def simulate_outcomes(X, weights, T, treatment_effect, x_i_outcome_effect_weight
     return Y, Y1, Y0
 
 
-def create_data_generate_process(mode='mode_1', X=None, T=None, weights=None, x_i_outcome_effect_weight=None):
+def create_data_generate_process(mode='mode_1', X=None, T=None, weights=None, x_i_outcome_effect_weight=None, n_samples_outside=None):
     
     if mode=='mode_1':
         # Parameters
@@ -57,6 +57,8 @@ def create_data_generate_process(mode='mode_1', X=None, T=None, weights=None, x_
     if mode == 'mode_folds_step1':
         # Parameters
         n_samples = 1000  # Number of samples
+        if n_samples_outside is not None:
+            n_samples = n_samples_outside
         d_cov = 10  # Total number of covariates including x_i
 
         x_i_selection_weight = 10
@@ -87,6 +89,8 @@ def create_data_generate_process(mode='mode_1', X=None, T=None, weights=None, x_
     if mode == 'mode_folds_simple_step1':
         # Parameters
         n_samples = 1000  # Number of samples
+        if n_samples_outside is not None:
+            n_samples = n_samples_outside
         d_cov = 2  # Total number of covariates including x_i
 
         x_i_selection_weight = 10

@@ -20,14 +20,14 @@ def estimate_propensity_score(X, T):
 
 def plot_propensity_score_distribution(propensity_scores_with, propensity_scores_without, T):
     plt.figure(figsize=(14, 6))
-    for i, (scores, label) in enumerate(zip([propensity_scores_with, propensity_scores_without], ['Including x_i', 'Excluding x_i'])):
+    for i, (scores, label) in enumerate(zip([propensity_scores_with, propensity_scores_without], ['Including $x_{co}$', 'Excluding $x_{co}$'])):
         plt.subplot(1, 2, i+1)
         plt.hist(scores[T == 1], bins=30, alpha=0.5, label=f'Treated ({label})')
         plt.hist(scores[T == 0], bins=30, alpha=0.5, label=f'Control ({label})')
         plt.title(f'Propensity Score Distribution ({label})')
         plt.xlabel('Propensity Score')
         plt.ylabel('Frequency')
-        plt.legend()
+        plt.legend(loc='upper right')
     plt.tight_layout()
     plt.show()
 

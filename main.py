@@ -1,16 +1,19 @@
+import matplotlib
+
+
 import numpy as np
 
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.preprocessing import StandardScaler
 from data_generating_process import create_data_generate_process
 from ate_estimate import calculate_ate
-from utilities import plot_propensity_score_distribution,estimate_propensity_score,calculate_ate_statistics
+from utilities import plot_propensity_score_distribution,estimate_propensity_score,calculate_ate_statistics,plot_data
 
 
 # Set the seed for reproducibility
 np.random.seed(42)
 
-n_iterations = 200
+n_iterations = 100
 
 # Iteration loop for ATE estimation
 ate_with_xi_list = []
@@ -18,11 +21,14 @@ ate_without_xi_list = []
 ground_truth_ate_list = []
 naive_ate_list = []
 
-for _ in range(n_iterations):
+for i_iter in range(n_iterations):
     
-    X, T, Y, Y1, Y0, prob = create_data_generate_process(mode ='mode_poly_all')
-    #X, T, Y, Y1, Y0, prob = create_data_generate_process2(mode ='mode_4')
-    
+    #X, T, Y, Y1, Y0, prob = create_data_generate_process(mode ='toy_example')    
+    X, T, Y, Y1, Y0, prob, Y1_without_noise, Y0_without_noise, X_grid, Y0_grid, Y1_grid = create_data_generate_process(mode='toy_example')
+    if i_iter == 0:
+        plot_data(X, T, Y0, Y1, Y0_without_noise, Y1_without_noise, X_grid, Y0_grid, Y1_grid)        
+        
+        
     scaler = StandardScaler()
     X_scaled_with = X #scaler.fit_transform(X)
     X_scaled_without = X[:, 1:]  #scaler.fit_transform(X[:, 1:])
@@ -45,7 +51,7 @@ for _ in range(n_iterations):
     naive_ate_list.append(np.mean(Y[T == 1]) - np.mean(Y[T == 0]))    
 
 # Plot Propensity Score Distributions (optional)
-plot_propensity_score_distribution(propensity_scores_with, propensity_scores_without,T)
+#plot_propensity_score_distribution(propensity_scores_with, propensity_scores_without,T)
 
 # Calculate average ATE and ATE error
 statistics_with_xi = calculate_ate_statistics(ate_with_xi_list, ground_truth_ate_list, n_iterations)

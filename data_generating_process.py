@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.preprocessing import PolynomialFeatures
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 
 # Helper functions
@@ -180,6 +181,46 @@ def create_data_generate_process(mode='mode_1', X=None, T=None, weights=None, x_
         Y = T * Y1 + (1 - T) * Y0
 
         return X, T, Y, Y1, Y0, prob
+    
+    if mode == 'toy_example':
+        # Parameters
+        n_samples = 200  # Number of samples
+        d_cov = 2  # Total number of covariates including x_i
+        treatment_effect = 5
+
+        x_i_selection_weight = 10
+        x_i_outcome_effect_weight = 0.1
+
+        # Simulate data
+        X = np.random.normal(0, 1, (n_samples, d_cov))
+         
+        l = X[:, 1]**2  + x_i_selection_weight*X[:, 0]**2*X[:, 1]**2  + x_i_selection_weight*X[:, 0]**2 + x_i_selection_weight*X[:, 0]**2*X[:, 1]
+        prob = 1 / (1 + np.exp(-l))      
+        T = np.random.binomial(1, prob)
+        
+        # Simulate outcomes
+        # Y0 relu of X[:, 0] and linear function of X[:, 1]    
+        Y0_without_noise = 2 + X[:, 1] + X[:, 1]**2 + x_i_outcome_effect_weight * X[:, 0]**2
+        Y1_without_noise = Y0_without_noise + treatment_effect
+        Y0 = Y0_without_noise + np.random.normal(0, 0.1, n_samples)
+        Y1 = Y1_without_noise + np.random.normal(0, 0.1, n_samples)
+        
+        # Create a regular grid for plotting
+        grid_size = 50
+        x0_grid, x1_grid = np.meshgrid(np.linspace(X[:, 0].min(), X[:, 0].max(), grid_size),
+                                       np.linspace(X[:, 1].min(), X[:, 1].max(), grid_size))
+        X_grid = np.c_[x0_grid.ravel(), x1_grid.ravel()]
+        Y0_grid = 2 + X_grid[:, 1] + X_grid[:, 1]**2 + x_i_outcome_effect_weight * X_grid[:, 0]**2
+        Y1_grid = Y0_grid + treatment_effect
+
+        Y = T * Y1 + (1 - T) * Y0
+        
+        return X, T, Y, Y1, Y0, prob, Y1_without_noise, Y0_without_noise, X_grid, Y0_grid, Y1_grid
+
+        
+
+        
+        #return X, T, Y, Y1, Y0, prob,Y1_without_noise,Y0_without_noise
     
     if mode == 'mode_poly_all':
         # Parameters
